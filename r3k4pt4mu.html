@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Kunjungan - SMAN Taruna Nala Jatim</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js untuk Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        /* CSS Khusus Template Export PDF A4 Landscape (Presisi Tengah Atas) */
+        #pdfExportArea {
+            width: 277mm; /* Pas dengan area cetak A4 Landscape */
+            margin: 0 auto; /* Posisi Rata Tengah (Center Top) */
+            padding: 8mm 6mm;
+            background: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1e293b;
+            box-sizing: border-box;
+        }
+        
+        .pdf-header {
+            border-bottom: 2.5px solid #1e3a8a;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .pdf-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        
+        .pdf-subtitle {
+            font-size: 9.5pt;
+            color: #475569;
+            margin-top: 2px;
+        }
+        
+        .pdf-meta-box {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9pt;
+            color: #166534;
+        }
+        
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5pt;
+            margin-top: 4px;
+            table-layout: fixed; /* Mencegah kolom melebar acak */
+        }
+        
+        .pdf-table th {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            text-align: left;
+            padding: 7px 6px;
+            font-weight: bold;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .pdf-table td {
+            padding: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+        
+        .pdf-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Foto Crop Tengah & Proporsional */
+        .pdf-img-crop {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            object-fit: cover; /* Crop otomatis bagian tengah */
+            object-position: center;
+            border: 1px solid #cbd5e1;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .pdf-footer {
+            margin-top: 12px;
+            text-align: right;
+            font-size: 7.5pt;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 6px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
+            
+            <!-- Bagian Kiri: Logo & Info Header -->
+            <div class="flex items-center space-x-4">
+                <img src="https://lh3.googleusercontent.com/d/1erlU3Wwr8NuIusv6FXvG3qahEv7D1eQL" 
+                     alt="Logo SMAN Taruna Nala" 
+                     class="w-14 h-14 object-contain shrink-0">
+                     
+                <div class="flex flex-col">
+                    <h1 class="text-xl font-bold leading-tight text-white">
+                        SMA Negeri Taruna Nala Jawa Timur
+                    </h1>
+                    <p class="text-xs text-blue-200 mt-0.5">
+                        Dashboard Data Kunjungan Tamu
+                    </p>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <span class="relative flex h-2 w-2">
+                            <span id="syncPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span id="syncDot" class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span id="syncStatus" class="text-[11px] text-green-300 font-medium tracking-wide">
+                            Real-Time Sync Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bagian Kanan: Menu Filter Tanggal & Button Download PDF -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="bg-blue-800/90 hover:bg-blue-800 transition p-2 rounded-lg flex items-center space-x-3 shadow-inner border border-blue-700/50">
+                    <label for="filterTanggal" class="text-sm font-medium text-blue-100 flex items-center cursor-pointer">
+                        <i class="fa-regular fa-calendar-days mr-2 text-yellow-400"></i> Pilih Tanggal:
+                    </label>
+                    <input type="date" id="filterTanggal" onchange="filterData()" 
+                        class="bg-white text-gray-800 text-sm font-semibold px-3 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer shadow-sm">
+                </div>
+
+                <!-- TOMBOL DOWNLOAD PDF -->
+                <button id="btnDownloadPDF" onclick="downloadPDF()" 
+                        class="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow flex items-center transition duration-150 ease-in-out cursor-pointer">
+                    <i class="fa-solid fa-file-pdf mr-2 text-lg"></i> <span id="btnPdfText">Download PDF</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="container mx-auto px-6 py-8">
+
+        <!-- Info Grafis Ringkasan -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Card Total Pengunjung -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-600 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Total Pengunjung Hari Ini</p>
+                    <h2 id="totalPengunjungText" class="text-4xl font-extrabold text-gray-800 mt-1">0</h2>
+                    <p id="labelTanggalSelected" class="text-xs text-blue-600 mt-1 font-medium">Tanggal: -</p>
+                </div>
+                <div class="bg-blue-100 text-blue-600 p-4 rounded-full">
+                    <i class="fa-solid fa-users text-2xl"></i>
+                </div>
+            </div>
+
+            <!-- Card Grafik Ringkasan -->
+            <div class="bg-white rounded-xl shadow-md p-6 md:col-span-2">
+                <h3 class="text-md font-bold text-gray-700 mb-2 flex items-center">
+                    <i class="fa-solid fa-chart-line text-blue-600 mr-2"></i> Grafik Kunjungan
+                </h3>
+                <div class="h-40">
+                    <canvas id="visitorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Rekapitulasi -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Rekapitulasi Data Tamu
+                </h3>
+                <span id="badgeCount" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">0 Data</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-blue-900 text-white text-xs uppercase tracking-wider">
+                            <th class="py-3 px-4 w-20 text-center">Foto Tamu</th>
+                            <th class="py-3 px-4 w-24">Jam Masuk</th>
+                            <th class="py-3 px-4">Nama Pengunjung</th>
+                            <th class="py-3 px-4">Asal Instansi/Pekerjaan</th>
+                            <th class="py-3 px-4">Nomor Telepon</th>
+                            <th class="py-3 px-4">Tujuan / Unit</th>
+                            <th class="py-3 px-4">Keperluan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelPengunjung" class="divide-y divide-gray-200 text-sm">
+                        <tr>
+                            <td colspan="7" class="text-center py-8 text-gray-500">
+                                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-blue-600"></i><br>
+                                Memuat data real-time...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Zoom Foto -->
+    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
+        <div class="relative max-w-2xl max-h-[90vh] bg-white rounded-lg p-2 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-700 rounded-full w-8 h-8 flex items-center justify-center text-bold shadow">✕</button>
+            <img id="modalImage" src="" alt="Foto Tamu Besar" class="max-h-[80vh] w-auto mx-auto rounded object-contain">
+        </div>
+    </div>
+
+    <!-- WADAH TEMPLATE EXPORT PDF A4 (RATA TENGAH ATAS) -->
+    <div style="position: absolute; left: -9999px; top: -9999px;">
+        <div id="pdfExportArea">
+            <div class="pdf-header">
+                <div>
+                    <div class="pdf-title">LAPORAN KUNJUNGAN TAMU</div>
+                    <div class="pdf-subtitle">SMA Negeri Taruna Nala Jawa Timur</div>
+                </div>
+                <div style="text-align: right; font-size: 8pt; color: #64748b;">
+                    Dokumen Resmi Sistem Informasi Buku Tamu
+                </div>
+            </div>
+
+            <div class="pdf-meta-box">
+                <div><strong>Tanggal Kunjungan:</strong> <span id="pdfTanggalLabel">-</span></div>
+                <div><strong>Total Pengunjung:</strong> <span id="pdfTotalLabel">0</span> Orang</div>
+            </div>
+
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%; text-align: center;">NO</th>
+                        <th style="width: 8%; text-align: center;">FOTO</th>
+                        <th style="width: 9%; text-align: center;">JAM</th>
+                        <th style="width: 18%;">NAMA PENGUNJUNG</th>
+                        <th style="width: 20%;">ASAL INSTANSI / PEKERJAAN</th>
+                        <th style="width: 14%;">NOMOR TELEPON</th>
+                        <th style="width: 12%;">TUJUAN / UNIT</th>
+                        <th style="width: 15%;">KEPERLUAN</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfTabelBody">
+                    <!-- Berisi data saat di-download -->
+                </tbody>
+            </table>
+
+            <div class="pdf-footer">
+                Dicetak secara otomatis pada: <span id="pdfWaktuCetak"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Utama -->
+    <script>
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbzgfJ8qurChzgs5rk1snMgx_0-108Ew2FoR8se9eenJYcieJuGtCoOEeyjRuIQ1w665yg/exec";
+
+        let allData = [];
+        let myChart = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('filterTanggal').value = today;
+
+            fetchDataFromSheet();
+
+            setInterval(() => {
+                fetchDataFromSheet();
+            }, 5000); 
+        });
+
+        // FUNGSI UTAMA FETCH DATA REAL-TIME
+        function fetchDataFromSheet() {
+            fetch(scriptUrl, {
+                method: "GET",
+                redirect: "follow"
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('syncStatus').innerText = "Real-Time Sync Active";
+                document.getElementById('syncDot').className = "relative inline-flex rounded-full h-2 w-2 bg-green-500";
+
+                allData = data.map(item => {
+                    let formattedDate = "";
+                    let formattedTime = "-";
+                    const rawTime = item.Timestamp || item.timestamp || "";
+                    
+                    if (rawTime) {
+                        const dateObj = new Date(rawTime);
+                        if (!isNaN(dateObj.getTime())) {
+                            const year = dateObj.getFullYear();
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            formattedDate = `${year}-${month}-${day}`;
+
+                            const hours = String(dateObj.getHours()).padStart(2, '0');
+                            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                            formattedTime = `${hours}:${minutes}`;
+                        } else {
+                            const partsSpace = String(rawTime).split(" ");
+                            const datePart = partsSpace[0];
+                            if (partsSpace[1]) {
+                                const timeParts = partsSpace[1].split(":");
+                                if(timeParts.length >= 2) {
+                                    formattedTime = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
+                                } else {
+                                    formattedTime = partsSpace[1];
+                                }
+                            }
+                            
+                            const parts = datePart.split("/");
+                            if (parts.length === 3) {
+                                formattedDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                            }
+                        }
+                    }
+
+                    let photoUrl = item["Link Foto Drive"] || item["Foto (Tamu)"] || item["Foto"] || "";
+                    if (photoUrl && photoUrl.includes("drive.google.com")) {
+                        const match = photoUrl.match(/\/d\/([^\/]+)/) || photoUrl.match(/id=([^&]+)/);
+                        if (match && match[1]) {
+                            photoUrl = `https://lh3.googleusercontent.com/d/${match[1]}`;
+                        }
+                    }
+
+                    return {
+                        timestamp: rawTime,
+                        tanggal: formattedDate,
+                        jam: formattedTime,
+                        nama: item["Nama Pengunjung"] || item["Nama"] || "-",
+                        instansi: item["Asal Instansi/Pekerjaan"] || item["Asal Instansi"] || "-",
+                        telepon: item["Nomor Telepon"] || item["No HP"] || "-",
+                        tujuan: item["Tujuan / Unit"] || item["Tujuan"] || "-",
+                        keperluan: item["Keperluan"] || "-",
+                        foto: photoUrl
+                    };
+                });
+
+                renderChart();
+                filterData();
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById('syncStatus').innerText = "Sync Error / Connecting...";
+                document.getElementById('syncDot').className = "relative inline-flex rounded-full h-2 w-2 bg-red-500";
+            });
+        }
+
+        function filterData() {
+            const selectedDate = document.getElementById('filterTanggal').value;
+            const tabelBody = document.getElementById('tabelPengunjung');
+            const totalText = document.getElementById('totalPengunjungText');
+            const labelTanggal = document.getElementById('labelTanggalSelected');
+            const badgeCount = document.getElementById('badgeCount');
+
+            const dateObj = new Date(selectedDate);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDateStr = isNaN(dateObj) ? selectedDate : dateObj.toLocaleDateString('id-ID', options);
+            labelTanggal.innerText = `Tanggal: ${formattedDateStr}`;
+
+            const filteredData = allData.filter(item => item.tanggal === selectedDate);
+
+            totalText.innerText = filteredData.length;
+            badgeCount.innerText = `${filteredData.length} Data Ditemukan`;
+
+            tabelBody.innerHTML = "";
+
+            if (filteredData.length === 0) {
+                tabelBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-300"></i><br>
+                            Tidak ada data pengunjung pada tanggal ini.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const imgTag = item.foto 
+                    ? `<img src="${item.foto}" alt="${item.nama}" 
+                        class="w-12 h-12 rounded-lg object-cover border border-blue-500 cursor-pointer shadow hover:scale-105 transition transform mx-auto"
+                        onclick="openModal('${item.foto}')"
+                        onerror="this.src='https://via.placeholder.com/150?text=No+Photo'">`
+                    : `<div class="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-[10px] text-center mx-auto">Tanpa Foto</div>`;
+
+                const row = `
+                    <tr class="hover:bg-blue-50 transition">
+                        <td class="py-2.5 px-3 text-center">${imgTag}</td>
+                        <td class="py-2.5 px-3 font-mono text-xs text-blue-900 font-semibold">${item.jam}</td>
+                        <td class="py-2.5 px-4 font-semibold text-gray-800">${item.nama}</td>
+                        <td class="py-2.5 px-4">${item.instansi}</td>
+                        <td class="py-2.5 px-4 text-gray-600">${item.telepon}</td>
+                        <td class="py-2.5 px-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded">
+                                ${item.tujuan}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-4 text-gray-700">${item.keperluan}</td>
+                    </tr>
+                `;
+                tabelBody.innerHTML += row;
+            });
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('visitorChart').getContext('2d');
+            
+            const dateCounts = {};
+            allData.forEach(item => {
+                if (item.tanggal) {
+                    dateCounts[item.tanggal] = (dateCounts[item.tanggal] || 0) + 1;
+                }
+            });
+
+            const labels = Object.keys(dateCounts).sort();
+            const dataCounts = labels.map(date => dateCounts[date]);
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Pengunjung',
+                        data: dataCounts,
+                        backgroundColor: 'rgba(30, 58, 138, 0.7)',
+                        borderColor: 'rgba(30, 58, 138, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        // KONVERSI GAMBAR KE BASE64 AGAR RENDERING PDF STABIL
+        function getBase64Image(url) {
+            return new Promise((resolve) => {
+                if (!url) return resolve("");
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = function () {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    try {
+                        const dataURL = canvas.toDataURL("image/jpeg", 0.92);
+                        resolve(dataURL);
+                    } catch (e) {
+                        resolve(url);
+                    }
+                };
+                img.onerror = function () {
+                    resolve("");
+                };
+                img.src = url;
+            });
+        }
+
+        // GENERATE & DOWNLOAD PDF (CENTER TOP ALIGNMENT + CROP FOTO PROPORSI)
+        async function downloadPDF() {
+            const selectedDate = document.getElementById('filterTanggal').value;
+            const filteredData = allData.filter(item => item.tanggal === selectedDate);
+
+            if (filteredData.length === 0) {
+                alert("Tidak ada data kunjungan pada tanggal " + selectedDate + " untuk di-download.");
+                return;
+            }
+
+            const btnPdfText = document.getElementById('btnPdfText');
+            const originalBtnText = btnPdfText.innerText;
+            btnPdfText.innerText = "Memproses PDF...";
+
+            try {
+                const dateObj = new Date(selectedDate);
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDateStr = isNaN(dateObj) ? selectedDate : dateObj.toLocaleDateString('id-ID', options);
+
+                document.getElementById('pdfTanggalLabel').innerText = formattedDateStr;
+                document.getElementById('pdfTotalLabel').innerText = filteredData.length;
+                document.getElementById('pdfWaktuCetak').innerText = new Date().toLocaleString('id-ID');
+
+                const pdfTabelBody = document.getElementById('pdfTabelBody');
+                pdfTabelBody.innerHTML = "";
+
+                for (let i = 0; i < filteredData.length; i++) {
+                    const item = filteredData[i];
+                    let imgBase64 = "";
+                    if (item.foto) {
+                        imgBase64 = await getBase64Image(item.foto);
+                    }
+
+                    const imgPdf = imgBase64 
+                        ? `<img src="${imgBase64}" class="pdf-img-crop">`
+                        : `<span style="color:#94a3b8; font-size:7pt;">Tanpa Foto</span>`;
+
+                    const pdfRow = `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold; color: #475569;">${i + 1}</td>
+                            <td style="text-align: center;">${imgPdf}</td>
+                            <td style="text-align: center; font-weight: bold; color: #1e3a8a; font-family: monospace;">${item.jam}</td>
+                            <td style="font-weight: bold; color: #0f172a;">${item.nama}</td>
+                            <td>${item.instansi}</td>
+                            <td>${item.telepon}</td>
+                            <td><span style="background-color:#dbeafe; color:#1e40af; padding:2px 5px; border-radius:3px; font-weight:600;">${item.tujuan}</span></td>
+                            <td>${item.keperluan}</td>
+                        </tr>
+                    `;
+                    pdfTabelBody.innerHTML += pdfRow;
+                }
+
+                const element = document.getElementById('pdfExportArea');
+
+                // Konfigurasi Presisi A4 Landscape Rata Tengah Atas
+                const opt = {
+                    margin:       [10, 10, 10, 10], // Margin simetris atas, kiri, bawah, kanan
+                    filename:     `Laporan_Kunjungan_Tamu_${selectedDate}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+
+                await html2pdf().set(opt).from(element).save();
+
+            } catch (err) {
+                console.error("Gagal mengunduh PDF:", err);
+                alert("Terjadi kesalahan saat memproses file PDF.");
+            } finally {
+                btnPdfText.innerText = originalBtnText;
+            }
+        }
+    </script>
+</body>
+</html>
