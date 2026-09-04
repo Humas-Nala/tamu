@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buku Tamu Digital - SMA Negeri Taruna Nala Jawa Timur</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .mirror {
+      transform: scaleX(-1);
+    }
+    /* Styling Custom SweetAlert2 Modern */
+    .swal2-popup {
+      border-radius: 1.25rem !important;
+      padding: 1.75rem !important;
+      font-family: ui-sans-serif, system-ui, sans-serif !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans">
+
+  <div class="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 my-auto">
+    
+    <div class="bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#1e40af] p-6 sm:p-8 text-white relative overflow-hidden border-b-4 border-amber-500">
+      
+      <div class="absolute -top-24 -left-24 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
+        
+        <div class="relative group flex-shrink-0">
+          <div class="absolute -inset-1 bg-gradient-to-r from-amber-400 to-yellow-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition"></div>
+          <div class="relative w-20 h-20 sm:w-24 sm:h-24 bg-slate-900/80 backdrop-blur-md p-2.5 rounded-2xl border-2 border-amber-400/80 shadow-xl flex items-center justify-center">
+            <img src="https://lh3.googleusercontent.com/d/1erlU3Wwr8NuIusv6FXvG3qahEv7D1eQL" alt="Logo SMAN Taruna Nala" class="w-full h-full object-contain filter drop-shadow-md">
+          </div>
+          
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-widest">
+             Formulir Digital Pencatatan Kunjungan Tamu
+          </div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-black tracking-wide text-white drop-shadow-md uppercase">
+            SMA Negeri Taruna Nala Jawa Timur
+          </h1>
+          <p class="text-blue-100/90 text-xs sm:text-sm font-medium tracking-wide">
+            Selamat Datang di SMA Negeri Taruna Nala Jawa Timur
+          </p>
+          <div class="pt-1 flex items-center justify-center sm:justify-start gap-2 text-xs text-blue-200/80 font-light">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Kunjungan Aktif</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <form id="guestForm" class="p-5 sm:p-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+        
+        <div class="lg:col-span-7 space-y-4">
+          <div>
+            <label for="nama" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">
+              Nama Pengunjung <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-feather="user" class="w-4 h-4"></i>
+              </div>
+              <input type="text" id="nama" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-[#1e3a8a] outline-none transition text-slate-800 text-sm" placeholder="Masukkan nama lengkap" required>
+            </div>
+          </div>
+
+          <div>
+            <label for="asal" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">
+              Asal Instansi / Pekerjaan <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-feather="briefcase" class="w-4 h-4"></i>
+              </div>
+              <input type="text" id="asal" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-[#1e3a8a] outline-none transition text-slate-800 text-sm" placeholder="Contoh: PT Abadi, Guru SMA, dll" required>
+            </div>
+          </div>
+
+          <div>
+            <label for="telepon" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">
+              Nomor Telepon (WhatsApp) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-feather="phone" class="w-4 h-4"></i>
+              </div>
+              <input type="tel" id="telepon" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-[#1e3a8a] outline-none transition text-slate-800 text-sm" placeholder="08xxxxxxxxxx" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="tujuan" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">
+                Unit Tujuan <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <i data-feather="building" class="w-4 h-4"></i>
+                </div>
+                <select id="tujuan" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-[#1e3a8a] outline-none transition text-slate-800 text-sm" required>
+                  <option value="">-- Pilih Unit --</option>
+                  <option value="KS">Kepala Sekolah</option>
+                  <option value="TU">Tata Usaha (TU)</option>
+                  <option value="Kurikulum">Kurikulum</option>
+                  <option value="Kesiswaan">Kesiswaan</option>
+                  <option value="Humas">Humas</option>
+                  <option value="Sarpras">Sarpras</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="keperluanSelect" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">
+                Keperluan <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <i data-feather="file-text" class="w-4 h-4"></i>
+                </div>
+                <select id="keperluanSelect" onchange="toggleKeperluanLainnya()" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-[#1e3a8a] outline-none transition text-slate-800 text-sm" required>
+                  <option value="">-- Pilih Keperluan --</option>
+                  <option value="Mengajar Bimbel">Mengajar Bimbel</option>
+                  <option value="Kunjungan Dinas Pendidikan Provinsi Jawa Timur">Kunjungan Dinas Pendidikan Provinsi Jawa Timur</option>
+                  <option value="Kunjungan Cabang Dinas Pendidikan Wilayah Malang-Batu">Kunjungan Cabang Dinas Pendidikan Wilayah Malang-Batu</option>
+                  <option value="Keperluan administrasi">Keperluan administrasi</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="wrapper-other-keperluan" class="hidden">
+            <textarea id="other-keperluan" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-[#1e3a8a] outline-none transition text-slate-800 text-sm" rows="2" placeholder="Tuliskan rincian keperluan Anda..."></textarea>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col justify-between space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">
+              Foto Swafoto (Live) <span class="text-red-500">*</span>
+            </label>
+
+            <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video lg:aspect-4/3 border-2 border-slate-200 flex items-center justify-center shadow-inner">
+              <video id="video" autoplay playsinline class="w-full h-full object-cover mirror"></video>
+              <canvas id="canvas" class="hidden w-full h-full object-cover"></canvas>
+              
+              <div id="cameraStatus" class="absolute bottom-3 left-3 bg-slate-900/80 text-white text-xs px-3 py-1 rounded-full backdrop-blur-md border border-white/10 flex items-center gap-1.5 shadow">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Kamera Aktif
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-3">
+              <button type="button" id="btnCapture" onclick="takeSnapshot()" class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white py-2 px-3 rounded-lg text-xs font-semibold transition">
+                <i data-feather="camera" class="w-4 h-4"></i> Ambil Foto
+              </button>
+              <button type="button" id="btnSwitch" onclick="switchCamera()" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-3 rounded-lg text-xs font-semibold border border-slate-300 transition">
+                <i data-feather="refresh-cw" class="w-4 h-4"></i> Ganti Kamera
+              </button>
+              <button type="button" id="btnRetake" onclick="resetCamera()" class="hidden col-span-2 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-2 px-3 rounded-lg text-xs font-semibold transition">
+                <i data-feather="rotate-ccw" class="w-4 h-4"></i> Foto Ulang
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmit" class="w-full mt-4 lg:mt-0 bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#2563eb] hover:opacity-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-blue-900/20 transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+            <i data-feather="send" class="w-4 h-4"></i> Kirim Data Kunjungan
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <script>
+    feather.replace();
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwy7PiCBsJHyP4b7tIJjPoHbJMfcl7KwdTrATLmSgBvx8CqevpSg05QkkHeFiu6q67e/exec";
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const btnSwitch = document.getElementById('btnSwitch');
+    const btnCapture = document.getElementById('btnCapture');
+    const btnRetake = document.getElementById('btnRetake');
+    const cameraStatus = document.getElementById('cameraStatus');
+    
+    let photoData = null;
+    let currentStream = null;
+    let useFacingMode = "user";
+
+    function startCamera(facingMode) {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+
+      if (facingMode === "user") {
+        video.classList.add('mirror');
+        canvas.classList.add('mirror');
+      } else {
+        video.classList.remove('mirror');
+        canvas.classList.remove('mirror');
+      }
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
+        .then(stream => {
+          currentStream = stream;
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          console.error("Akses kamera gagal:", err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Kamera Tidak Aksesibel',
+            text: 'Harap izinkan akses kamera pada pengaturan browser Anda.',
+            confirmButtonColor: '#1e3a8a'
+          });
+        });
+    }
+
+    startCamera(useFacingMode);
+
+    function switchCamera() {
+      useFacingMode = (useFacingMode === "user") ? "environment" : "user";
+      startCamera(useFacingMode);
+    }
+
+    function toggleKeperluanLainnya() {
+      const select = document.getElementById('keperluanSelect');
+      const wrapper = document.getElementById('wrapper-other-keperluan');
+      const otherText = document.getElementById('other-keperluan');
+      
+      if (select.value === 'Lainnya') {
+        wrapper.classList.remove('hidden');
+        otherText.required = true;
+      } else {
+        wrapper.classList.add('hidden');
+        otherText.required = false;
+        otherText.value = '';
+      }
+    }
+
+    function takeSnapshot() {
+      const context = canvas.getContext('2d');
+      const maxWidth = 800;
+      let width = video.videoWidth;
+      let height = video.videoHeight;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      if (useFacingMode === "user") {
+        context.translate(width, 0);
+        context.scale(-1, 1);
+      }
+      
+      context.drawImage(video, 0, 0, width, height);
+      photoData = canvas.toDataURL('image/jpeg', 0.7);
+      
+      video.classList.add('hidden');
+      canvas.classList.remove('hidden');
+      
+      btnCapture.classList.add('hidden');
+      btnSwitch.classList.add('hidden');
+      btnRetake.classList.remove('hidden');
+
+      cameraStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Foto Terkunci`;
+    }
+
+    function resetCamera() {
+      photoData = null;
+      video.classList.remove('hidden');
+      canvas.classList.add('hidden');
+      
+      btnCapture.classList.remove('hidden');
+      btnSwitch.classList.remove('hidden');
+      btnRetake.classList.add('hidden');
+
+      cameraStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Kamera Aktif`;
+    }
+
+    document.getElementById('guestForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (!photoData) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Foto Belum Diambil',
+          text: 'Silakan jepret foto swafoto terlebih dahulu sebelum mengirim data.',
+          confirmButtonColor: '#1e3a8a',
+          confirmButtonText: 'Mengerti'
+        });
+        return;
+      }
+
+      const keperluanSelect = document.getElementById('keperluanSelect').value;
+      const keperluanFinal = (keperluanSelect === 'Lainnya') 
+        ? document.getElementById('other-keperluan').value 
+        : keperluanSelect;
+
+      const payload = {
+        nama: document.getElementById('nama').value,
+        asal: document.getElementById('asal').value,
+        telepon: document.getElementById('telepon').value,
+        tujuan: document.getElementById('tujuan').value,
+        keperluan: keperluanFinal,
+        foto: photoData
+      };
+
+      const submitBtn = document.getElementById('btnSubmit');
+      submitBtn.innerHTML = `<i data-feather="loader" class="w-4 h-4 animate-spin"></i> Menyimpan Data...`;
+      feather.replace();
+      submitBtn.disabled = true;
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(response => {
+        if (response.result === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Terkirim!',
+            text: 'Terimakasih atas kunjungan Anda di SMAN Taruna Nala Jawa Timur.',
+            confirmButtonColor: '#1e3a8a',
+            confirmButtonText: 'Selesai'
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal Menyimpan',
+            text: response.message || 'Terjadi kesalahan pada sistem.',
+            confirmButtonColor: '#1e3a8a'
+          });
+          submitBtn.innerHTML = `<i data-feather="send" class="w-4 h-4"></i> Kirim Data Kunjungan`;
+          feather.replace();
+          submitBtn.disabled = false;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Terkirim!',
+          text: 'Terimakasih atas kunjungan Anda di SMAN Taruna Nala Jawa Timur.',
+          confirmButtonColor: '#1e3a8a',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          location.reload();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
